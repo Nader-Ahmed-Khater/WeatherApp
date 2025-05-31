@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Weather App</title>
+  <link rel="shortcut icon" href="assets/favicon.png" type="image/png" sizes="32x32">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    color: white;
+    font-weight: 600;
+}
+
+body {
+    background: url('assets/bg.jpg');
+    width: 100%;
+    height: 100dvh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100dvh;
+    background: rgb(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+}
+
+/* UTILIIES */
+.regulart-txt {
+    font-weight: 400;
+}
+/* END UTILIIES */
+
+.main-container {
+    width: 1240px;
+    height: 650px;
+    z-index: 1;
+    background: linear-gradient(
+        to top, rgb(0, 0, 0, 0.15),
+        rgba(0, 251, 255, 0.267));
+    border-radius: 12px;
+    backdrop-filter: blur(100px);
+    padding: 20px;
+}
+
+/* INPUT CONTAINER */
+.input-container {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.city-input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 99px;
+    border: 3px solid transparent;
+    background: rgb(0, 0, 0, 0.15);
+    outline: none;
+    font-weight: 500;
+    transition: 0.25s border;
+    padding-right: 45px;
+}
+.city-input:focus {
+    border: 3px solid rgb(0, 0, 0, 0.15);
+}
+.city-input::placeholder {
+    color: rgb(255, 255, 255, 0.75);
+}
+
+.search-btn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    display: flex;
+    border: none;
+    cursor: pointer;
+}
+/* END INPUT CONTAINER */
+
+/* SECTION: WEATHER INFO */
+.weather-info {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.location-date-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+.location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.weather-summary-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.weather-summary-img {
+    width: 120px;
+    height: 120px;
+}
+.weather-summary-info {
+    text-align: end;
+}
+
+.weather-conditions-container {
+    display: flex;
+    justify-content: space-between;
+    background: rgb(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    height: 50px;
+}
+.condition-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.condition-item span {
+    font-size: 30px;
+}
+
+.forecast-items-container {
+    display: flex;
+    gap: 15px;
+    /* overflow: scroll; */
+    padding-bottom: 12px;
+}
+.forecast-items-container::-webkit-scrollbar {
+    height: 5px;
+}
+.forecast-items-container::-webkit-scrollbar-track {
+    background: rgb(0, 0, 0, 0.1);
+    border-radius: 99px;
+}
+.forecast-items-container::-webkit-scrollbar-thumb {
+    background: rgb(0, 0, 0, 0.15);
+    border-radius: 99px;
+}
+
+.forecast-item {
+    min-width: 100px;
+    background: rgb(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    align-items: center;
+    border-radius: 12px;
+    transition: 0.1s background;
+    height: 250px;
+}
+.forecast-item:hover {
+    background: rgba(22, 1, 1, 0.038);
+}
+.forecast-item-img {
+    width: 50px;
+    height: 50px;
+}
+/* END SECTION: WEATHER INFO */
+
+/* SECTION: MESSAGE */
+.section-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+    margin-top: 10%;
+}
+.section-message img {
+    height: 180px;
+    width: fit-content;
+}
+/* END SECTION: MESSAGE */
+</style>
+</head>
+<body>
+<main class="main-container">
+  <header class="input-container">
+    <input class="city-input" placeholder="Search City" type="text">
+    <button class="search-btn">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+  </header>
+
+  <section class="weather-info" style="display: none;">
+    <div class="location-date-container">
+      <div class="location">
+        <span class="material-symbols-outlined">location_on</span>
+        <h3 class="country-txt">Jakarta</h3>
+      </div>
+      <h3 class="current-date-txt regular-txt">Sat, 01 Apr</h3>
+    </div>
+
+    <div class="weather-summary-container">
+      <img src="assets/weather/clouds.svg" class="weather-summary-img" alt="Clouds">
+      <div class="weather-summary-info">
+        <h3 class="temp-txt">29° 16° C</h3>
+        <h3 class="condition-txt regular-txt">Clouds</h3>
+      </div>
+    </div>
+
+    <div class="weather-conditions-container">
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/ftzwyxct.json" trigger="loop" delay="2000"
+                   stroke="bold" colors="primary:#30c9e8,secondary:#ffffff"
+                   style="width:40px;height:40px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Humidity</h5>
+          <h5 class="humidity-value-txt">55%</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/jorfufsk.json" trigger="loop" delay="1000"
+                   stroke="bold" state="loop-cycle" colors="primary:#ffffff"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Wind Speed</h5>
+          <h5 class="wind-value-txt">2 M/s</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/cvkyspkp.json" trigger="loop" delay="2000"
+                   stroke="bold" state="hover-rays-alt"
+                   colors="primary:#30c9e8,secondary:#ebe6ef,tertiary:#ffc738,quaternary:#92140c"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Sunrise</h5>
+          <h5 class="sunrise-value-txt">05:00:00 am</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/ajbyequd.json" trigger="loop" delay="2000"
+                   stroke="bold"
+                   colors="primary:#30c9e8,secondary:#2ca58d,tertiary:#ffc738,quaternary:#ffffff"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Sunset</h5>
+          <h5 class="sunset-value-txt">06:00:00 pm</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/fqovjjrx.json" trigger="loop" delay="1000"
+                   stroke="bold"
+                   state="morph-cold"
+                   colors="primary:#30c9e8,secondary:#ebe6ef,tertiary:#ffc738,quaternary:#f24c00,quinary:#ffffff"
+                   style="width:40px;height:40px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Pressure</h5>
+          <h5 class="pressure-value-txt">1016</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="forecast-items-container">
+      
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-01 regular-txt">02 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-01">
+          <h3 class="condition-txt-day-01 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-01">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-02 regular-txt">03 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-02">
+          <h3 class="condition-txt-day-02 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-02">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-03 regular-txt">04 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-03">
+          <h3 class="condition-txt-day-03 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-03">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-04 regular-txt">05 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-04">
+          <h3 class="condition-txt-day-04 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-04">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-05 regular-txt">06 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-05">
+          <h3 class="condition-txt-day-05 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-05">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-06 regular-txt">07 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-06">
+          <h3 class="condition-txt-day-06 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-06">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-07 regular-txt">08 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-07">
+          <h3 class="condition-txt-day-07 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-07">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-08 regular-txt">09 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-08">
+          <h3 class="condition-txt-day-08 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-08">29° 15°C</h5>
+        </div>
+        
+        <div class="forecast-item">
+          <h3 class="forecast-item-date-day-09 regular-txt">010 Aug</h3>
+          <img src="assets/weather/thunderstorm.svg" alt="" class="forecast-item-img-day-09">
+          <h3 class="condition-txt-day-09 regular-txt">Clouds</h3>
+          <h5 class="forecast-item-temp-day-09">29° 15°C</h5>
+        </div>
+        
+    </div>
+  </section>
+
+  <section class="search-city section-message">
+    <img src="assets/message/search-city.png" alt="search-city">
+    <div>
+      <h1>Search City</h1>
+      <h4 class="regular-txt">Find out the weather conditions of the city</h4>
+    </div>
+  </section>
+
+  <section class="not-found section-message" style="display: none;">
+    <img src="assets/message/not-found.png" alt="not-found">
+    <div>
+      <h1>City not found</h1>
+      <h4 class="regular-txt">Your input city is wrong please try again,</h4>
+    </div>
+  </section>
+</main>
+<script>
+  // Get elements
+  const searchBtn = document.querySelector('.search-btn');
+  const cityInput = document.querySelector('.city-input');
+  
+  // Create spinner
+  const spinner = document.createElement('div');
+  spinner.style.display = 'none';
+  spinner.innerHTML = `<div style="width:20px; height:20px; border:2px solid white; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite; margin-left: 10px;"></div>`;
+  document.querySelector('.input-container').appendChild(spinner);
+  
+  // Add spinner animation
+  const style = document.createElement('style');
+  style.innerHTML = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  `;
+  document.head.appendChild(style);
+  
+  // Weather search function
+  function searchWeather(cityNameInput) {
+      const cityName = cityNameInput || cityInput.value.trim();
+      if (!cityName) return;
+  
+      const weatherApiKey = 'e8ba44fd53b38c1ab0423f2635591f3c';
+      const weatherApi = `https://api.openweathermap.org/data/2.5/forecast/daily?q=${cityName}&cnt=10&appid=${weatherApiKey}&units=metric`;
+  
+      fetch(weatherApi).then(response => {
+          if (response.status === 200){
+              response.json().then(data => {
+                  document.querySelector('.weather-info').style.display = '';
+                  document.querySelector('.search-city').style.display = 'none';
+                  document.querySelector('.not-found').style.display = 'none';
+                  document.querySelector('.country-txt').textContent = data.city.name
+  
+                  document.querySelector('.current-date-txt').textContent = new Date(data.list[0].dt * 1000).toLocaleDateString('en-GB',
+                      { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'UTC' });
+                  document.querySelector('.weather-summary-img').src = `https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}@2x.png`;
+                  document.querySelector('.temp-txt').textContent = Math.round(data.list[0].temp.day) + '°  / ' + Math.round(data.list[0].temp.min) + '° C';
+                  document.querySelector('.condition-txt').textContent = data.list[0].weather[0].main;
+                  document.querySelector('.humidity-value-txt').textContent = data.list[0].humidity + "%";
+                  document.querySelector('.wind-value-txt').textContent = data.list[0].speed + "m/s";
+                  document.querySelector('.sunrise-value-txt').textContent = new Date(data.list[0].sunrise * 1000).toLocaleTimeString('en-GB',
+                      {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
+                  document.querySelector('.sunset-value-txt').textContent = new Date(data.list[0].sunset * 1000).toLocaleTimeString('en-GB',
+                      {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
+                  document.querySelector('.pressure-value-txt').textContent = data.list[0].pressure;
+  
+                  for (let i = 1; i <= 9; i++) {
+                      document.querySelector(`.forecast-item-date-day-0${i}`).textContent = new Date(data.list[i].dt * 1000).toLocaleDateString('en-GB', { weekday: 'short' });
+                      document.querySelector(`.forecast-item-img-day-0${i}`).src = `https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}@2x.png`;
+                      document.querySelector(`.condition-txt-day-0${i}`).textContent = data.list[i].weather[0].main;
+                      document.querySelector(`.forecast-item-temp-day-0${i}`).textContent = Math.round(data.list[i].temp.day) + '° ' + Math.round(data.list[i].temp.min) + '°C';
+                  }
+              })
+          } else {
+              document.querySelector('.weather-info').style.display = 'none';
+              document.querySelector('.search-city').style.display = 'none';
+              document.querySelector('.not-found').style.display = '';
+          }
+      });
+  }
+  
+  // Click event
+  searchBtn.addEventListener('click', () => searchWeather());
+  
+  // Press Enter event
+  cityInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+          searchWeather();
+      }
+  });
+  
+  // AUTOCOMPLETE FEATURE
+  const autoCompleteBox = document.createElement('ul');
+  autoCompleteBox.style.position = 'absolute';
+  autoCompleteBox.style.top = '50px';
+  autoCompleteBox.style.width = '100%';
+  autoCompleteBox.style.backgroundColor = 'rgba(0,0,0,0.7)';
+  autoCompleteBox.style.borderRadius = '0 0 10px 10px';
+  autoCompleteBox.style.listStyle = 'none';
+  autoCompleteBox.style.padding = '0';
+  autoCompleteBox.style.margin = '0';
+  autoCompleteBox.style.maxHeight = '150px';
+  autoCompleteBox.style.overflowY = 'auto';
+  autoCompleteBox.style.zIndex = '1000';
+  autoCompleteBox.style.display = 'none';
+  document.querySelector('.input-container').appendChild(autoCompleteBox);
+  
+  cityInput.addEventListener('input', () => {
+      const query = cityInput.value.trim();
+      autoCompleteBox.innerHTML = '';
+  
+      if (query.length < 2) {
+          autoCompleteBox.style.display = 'none';
+          spinner.style.display = 'none';
+          return;
+      }
+  
+      spinner.style.display = 'inline-block';
+  
+      const apiKey = 'e8ba44fd53b38c1ab0423f2635591f3c';
+      const geoApi = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`;
+  
+      fetch(geoApi)
+          .then(response => response.json())
+          .then(cities => {
+              autoCompleteBox.innerHTML = '';
+              spinner.style.display = 'none';
+  
+              cities.forEach(city => {
+                  const li = document.createElement('li');
+                  li.textContent = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
+                  li.style.padding = '10px';
+                  li.style.cursor = 'pointer';
+                  li.addEventListener('click', () => {
+                      cityInput.value = city.name;
+                      autoCompleteBox.style.display = 'none';
+                      searchWeather(city.name); // <-- Search immediately
+                  });
+                  autoCompleteBox.appendChild(li);
+              });
+  
+              autoCompleteBox.style.display = cities.length > 0 ? 'block' : 'none';
+          })
+          .catch(() => {
+              spinner.style.display = 'none';
+          });
+  });
+  </script>
+</body>
+</html>

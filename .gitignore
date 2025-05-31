@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/
+# If you use a virtual environment named 'env' or 'venv'
+# you can add more specific paths if your venv is somewhere else:
+# my_env/
+
+# Django
+*.log
+*.pot
+*.mo
+*.sqlite3  # Your SQLite database file (if using default db.sqlite3)
+media/     # User-uploaded files (if you have them)
+static/    # Collected static files (if you run collectstatic)
+.env       # For environment variables if you use a .env file
+
+# Security (VERY IMPORTANT!)
+weatherproject/settings_local.py # Or whatever file you use for local/secret settings
+# If you put your SECRET_KEY directly in settings.py, you MUST be careful.
+# It's better practice to load it from an environment variable or a local settings file
+# which IS ignored.
+
+# IDE and OS files
+.vscode/ # VS Code specific files
+.idea/   # PyCharm specific files
+.DS_Store # macOS
+Thumbs.db # Windows

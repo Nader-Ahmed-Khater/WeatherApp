@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Weather App - Django</title>
+  <link rel="shortcut icon" href="{% static 'weatherapp/images/favicon.png' %}" type="image/png" sizes="32x32">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link rel="stylesheet" href="{% static 'weatherapp/css/style.css' %}">
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
+</head>
+<body>
+<main class="main-container">
+  <header class="input-container">
+    <input class="city-input" placeholder="Search City" type="text">
+    <button class="search-btn">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    </header>
+
+  <section class="weather-info" style="display: none;">
+    <div class="location-date-container">
+      <div class="location">
+        <span class="material-symbols-outlined">location_on</span>
+        <h3 class="country-txt">City Name</h3> </div>
+      <h3 class="current-date-txt regular-txt">Date</h3> </div>
+
+    <div class="weather-summary-container">
+      <img src="{% static 'weatherapp/images/weather/clouds.svg' %}" class="weather-summary-img" alt="Weather Icon"> <div class="weather-summary-info">
+        <h3 class="temp-txt">Temp</h3> <h3 class="condition-txt regular-txt">Condition</h3> </div>
+    </div>
+
+    <div class="weather-conditions-container">
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/ftzwyxct.json" trigger="loop" delay="2000"
+                   stroke="bold" colors="primary:#30c9e8,secondary:#ffffff"
+                   style="width:40px;height:40px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Humidity</h5>
+          <h5 class="humidity-value-txt">--%</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/jorfufsk.json" trigger="loop" delay="1000"
+                   stroke="bold" state="loop-cycle" colors="primary:#ffffff"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Wind Speed</h5>
+          <h5 class="wind-value-txt">-- M/s</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/cvkyspkp.json" trigger="loop" delay="2000"
+                   stroke="bold" state="hover-rays-alt"
+                   colors="primary:#30c9e8,secondary:#ebe6ef,tertiary:#ffc738,quaternary:#92140c"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Sunrise</h5>
+          <h5 class="sunrise-value-txt">--:--:--</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/ajbyequd.json" trigger="loop" delay="2000"
+                   stroke="bold"
+                   colors="primary:#30c9e8,secondary:#2ca58d,tertiary:#ffc738,quaternary:#ffffff"
+                   style="width:50px;height:50px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Sunset</h5>
+          <h5 class="sunset-value-txt">--:--:--</h5>
+        </div>
+      </div>
+      <div class="condition-item">
+        <lord-icon src="https://cdn.lordicon.com/fqovjjrx.json" trigger="loop" delay="1000"
+                   stroke="bold"
+                   state="morph-cold"
+                   colors="primary:#30c9e8,secondary:#ebe6ef,tertiary:#ffc738,quaternary:#f24c00,quinary:#ffffff"
+                   style="width:40px;height:40px"></lord-icon>
+        <div class="condition-info">
+          <h5 class="regular-txt">Pressure</h5>
+          <h5 class="pressure-value-txt">----</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="forecast-items-container">
+      {% for i in "123456789" %} <div class="forecast-item">
+          <h3 class="forecast-item-date-day-0{{ i }} regular-txt">Date {{ i }}</h3>
+          <img src="{% static 'weatherapp/images/weather/clouds.svg' %}" alt="Forecast Icon" class="forecast-item-img-day-0{{ i }}">
+          <h3 class="condition-txt-day-0{{ i }} regular-txt">Condition {{ i }}</h3>
+          <h5 class="forecast-item-temp-day-0{{ i }}">Temp {{ i }}</h5>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="search-city section-message">
+    <img src="{% static 'weatherapp/images/message/search-city.png' %}" alt="search-city">
+    <div>
+      <h1>Search City</h1>
+      <h4 class="regular-txt">Find out the weather conditions of the city</h4>
+    </div>
+  </section>
+
+  <section class="not-found section-message" style="display: none;">
+    <img src="{% static 'weatherapp/images/message/not-found.png' %}" alt="not-found">
+    <div>
+      <h1>City not found</h1>
+      <h4 class="regular-txt">Your input city is wrong please try again,</h4>
+    </div>
+  </section>
+</main>
+<script src="{% static 'weatherapp/js/script.js' %}"></script>
+</body>
+</html>

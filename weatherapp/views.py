@@ -10,7 +10,7 @@ OPENWEATHERMAP_API_KEY = os.environ.get('OPENWEATHERMAP_API_KEY', 'e8ba44fd53b38
 
 def index(request):
     """
-    Renders the main weather page.1
+    Renders the main weather page.
     """
     return render(request, 'weatherapp/index.html')
 

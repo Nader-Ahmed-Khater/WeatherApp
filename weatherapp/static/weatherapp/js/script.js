@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
+
+    console.log("App loaded!");
+    
     // Function to update UI with weather data
     function updateWeatherUI(data) {
         weatherInfoSection.style.display = '';
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function searchWeather(cityNameInput) {
         const cityName = cityNameInput || cityInput.value.trim();
         if (!cityName) return;
-        
+
         // Hide autocomplete box immediately on search
         autoCompleteBox.style.display = 'none'; 
         // Show spinner, hide messages

@@ -52,9 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
         humidityValueTxt.textContent = `${data.list[0].humidity}%`;
         windValueTxt.textContent = `${data.list[0].speed} m/s`;
         sunriseValueTxt.textContent = new Date(data.list[0].sunrise * 1000).toLocaleTimeString('en-GB',
-            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' });
+            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Cairo' });
         sunsetValueTxt.textContent = new Date(data.list[0].sunset * 1000).toLocaleTimeString('en-GB',
-            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' });
+            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Cairo' });
         pressureValueTxt.textContent = data.list[0].pressure;
 
         // Update forecast items

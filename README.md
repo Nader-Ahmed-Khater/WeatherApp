@@ -10,7 +10,7 @@ python -m venv weatherapp
 
 ```
 cd weatherapp
-source scripts/activate
+.\venv\Scripts\activate
 mkdir src
 cd src
 git clone https://github.com/Nader-Ahmed-Khater/WeatherApp
@@ -27,7 +27,6 @@ pip install -r requirements.txt
 
 ```
 python manage.py migrate
-python manage.py loaddata data.json
 ```
 
 ### 5. Run the app

@@ -19,6 +19,7 @@ git clone https://github.com/Nader-Ahmed-Khater/WeatherApp
 ### 3. install dependencies 
 
 ```
+cd Weatherapp
 pip install -r requirements.txt
 ```
 

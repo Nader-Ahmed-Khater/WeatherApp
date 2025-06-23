@@ -10,7 +10,7 @@ python -m venv weatherapp
 
 ```
 cd weatherapp
-.\venv\Scripts\activate
+.\Scripts\activate
 mkdir src
 cd src
 git clone https://github.com/Nader-Ahmed-Khater/WeatherApp

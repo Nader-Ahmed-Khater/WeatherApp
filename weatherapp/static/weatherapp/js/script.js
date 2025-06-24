@@ -101,6 +101,37 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             forecastContainer.insertAdjacentHTML('beforeend', forecastItemHTML);
         }
+        // Modify searchWeather function to handle the new combined response structure
+    const searchWeather = async (cityName) => {
+        spinner.style.display = 'block';
+        weatherInfoSection.style.display = 'none';
+        searchCityMessage.style.display = 'none';
+        notFoundMessage.style.display = 'none';
+        autoCompleteBox.style.display = 'none'; // Hide autocomplete box immediately
+
+        try {
+            const response = await fetch(`/api/weather/?city=${encodeURIComponent(cityName)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                notFoundMessage.style.display = '';
+                searchCityMessage.style.display = 'none';
+                weatherInfoSection.style.display = 'none';
+                spinner.style.display = 'none';
+                console.error("API Error:", data.error);
+                return;
+            }
+
+            updateWeatherUI(data); // Pass the combined data to update UI
+
+        } catch (error) {
+            console.error('Network or other error:', error);
+            notFoundMessage.style.display = ''; // Show not found message on network error
+            searchCityMessage.style.display = 'none';
+            weatherInfoSection.style.display = 'none';
+            spinner.style.display = 'none';
+        }
+    };
 
         // Show weather info and hide messages
         weatherInfoSection.style.display = '';
@@ -248,37 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             autoCompleteBox.style.display = 'none';
         }
     });
-// Modify searchWeather function to handle the new combined response structure
-    const searchWeather = async (cityName) => {
-        spinner.style.display = 'block';
-        weatherInfoSection.style.display = 'none';
-        searchCityMessage.style.display = 'none';
-        notFoundMessage.style.display = 'none';
-        autoCompleteBox.style.display = 'none'; // Hide autocomplete box immediately
 
-        try {
-            const response = await fetch(`/api/weather/?city=${encodeURIComponent(cityName)}`);
-            const data = await response.json();
-
-            if (data.error) {
-                notFoundMessage.style.display = '';
-                searchCityMessage.style.display = 'none';
-                weatherInfoSection.style.display = 'none';
-                spinner.style.display = 'none';
-                console.error("API Error:", data.error);
-                return;
-            }
-
-            updateWeatherUI(data); // Pass the combined data to update UI
-
-        } catch (error) {
-            console.error('Network or other error:', error);
-            notFoundMessage.style.display = ''; // Show not found message on network error
-            searchCityMessage.style.display = 'none';
-            weatherInfoSection.style.display = 'none';
-            spinner.style.display = 'none';
-        }
-    };
     // Initial state: show search city message
     weatherInfoSection.style.display = 'none';
     notFoundMessage.style.display = 'none';

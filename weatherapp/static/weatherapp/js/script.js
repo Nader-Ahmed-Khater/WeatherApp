@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Weather display elements
     const countryTxt = document.querySelector('.country-txt');
     const currentDateTxt = document.querySelector('.current-date-txt');
+    // --- NEW: Select the local time element ---
+    const localTimeTxt = document.querySelector('.local-time-txt');
+    // --- END NEW ---
     const weatherSummaryImg = document.querySelector('.weather-summary-img');
     const tempTxt = document.querySelector('.temp-txt');
     const conditionTxt = document.querySelector('.condition-txt');
@@ -18,70 +21,93 @@ document.addEventListener('DOMContentLoaded', () => {
     const sunsetValueTxt = document.querySelector('.sunset-value-txt');
     const pressureValueTxt = document.querySelector('.pressure-value-txt');
 
-    // Create spinner (same as your original code)
-    const spinner = document.createElement('div');
-    spinner.style.display = 'none';
-    spinner.innerHTML = `<div style="width:20px; height:20px; border:2px solid white; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite; margin-left: 10px;"></div>`;
-    document.querySelector('.input-container').appendChild(spinner);
+    // ... (spinner and autocompleteTimer declarations remain)
+    let autocompleteTimer;
 
-    const style = document.createElement('style');
-    style.innerHTML = `
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    `;
-    document.head.appendChild(style);
-
-
-    console.log("App loaded!");
-    
     // Function to update UI with weather data
-    function updateWeatherUI(data) {
+    const updateWeatherUI = (data) => {
+        // --- NEW: Access current and forecast data from the combined response ---
+        const currentWeatherData = data.current;
+        const forecastData = data.forecast;
+        const localTime = data.local_time;
+        // const timezoneOffsetSeconds = data.timezone_offset_seconds; // If you need offset in JS
+        // --- END NEW ---
+
+        // Update main weather info
+        countryTxt.textContent = `${currentWeatherData.name}, ${currentWeatherData.sys.country}`;
+
+        // Get current date (still good to get this locally or from API 'dt' timestamp for consistency)
+        const currentDate = new Date(); // Or new Date(currentWeatherData.dt * 1000); for API's timestamp
+        currentDateTxt.textContent = currentDate.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' });
+
+        // --- NEW: Update local time ---
+        localTimeTxt.textContent = localTime;
+        // --- END NEW ---
+
+        weatherSummaryImg.src = `https://openweathermap.org/img/wn/${currentWeatherData.weather[0].icon}@2x.png`;
+        weatherSummaryImg.alt = currentWeatherData.weather[0].description;
+        // --- NEW: Use currentWeatherData for temp, not forecastData[0] ---
+        tempTxt.textContent = `${Math.round(currentWeatherData.main.temp)}°C`;
+        conditionTxt.textContent = currentWeatherData.weather[0].description;
+        // --- END NEW ---
+        humidityValueTxt.textContent = `${currentWeatherData.main.humidity}%`;
+        windValueTxt.textContent = `${currentWeatherData.wind.speed}m/s`;
+        pressureValueTxt.textContent = `${currentWeatherData.main.pressure}hPa`;
+
+        // Sunrise and Sunset (convert from UTC to city's local time)
+        // OpenWeatherMap provides sunrise/sunset in UTC Unix timestamps.
+        // We'll use the timezone offset passed from Django to display them correctly.
+        const sunriseUTC = new Date(currentWeatherData.sys.sunrise * 1000);
+        const sunsetUTC = new Date(currentWeatherData.sys.sunset * 1000);
+
+        // Function to format time based on timezone offset
+        // This is a more robust way to display times with a specific offset in JS
+        const formatTimeWithOffset = (dateUTC, offsetSeconds) => {
+            const localDate = new Date(dateUTC.getTime() + offsetSeconds * 1000);
+            return localDate.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true // For AM/PM format
+            });
+        };
+
+        sunrizeValueTxt.textContent = formatTimeWithOffset(sunriseUTC, data.timezone_offset_seconds);
+        sunsetValueTxt.textContent = formatTimeWithOffset(sunsetUTC, data.timezone_offset_seconds);
+
+
+        // Update 9-day forecast
+        const forecastContainer = document.querySelector('.forecast-items-container');
+        forecastContainer.innerHTML = ''; // Clear previous forecast items
+
+        // Start from day 1 for the forecast (index 0 is current day in forecast list)
+        // Loop from the second day (index 1) of the forecast for the 9-day display
+        for (let i = 1; i < forecastData.list.length; i++) {
+            const daily = forecastData.list[i];
+            const date = new Date(daily.dt * 1000); // Convert Unix timestamp to Date object
+
+            const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' });
+            const icon = daily.weather[0].icon;
+            const condition = daily.weather[0].description;
+            const tempDay = Math.round(daily.temp.day);
+            const tempMin = Math.round(daily.temp.min);
+
+            const forecastItemHTML = `
+                <div class="forecast-item">
+                    <h3 class="regular-txt">${dayName}</h3>
+                    <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${condition}">
+                    <h3 class="regular-txt">${condition}</h3>
+                    <h5>${tempDay}° / ${tempMin}° C</h5>
+                </div>
+            `;
+            forecastContainer.insertAdjacentHTML('beforeend', forecastItemHTML);
+        }
+
+        // Show weather info and hide messages
         weatherInfoSection.style.display = '';
         searchCityMessage.style.display = 'none';
         notFoundMessage.style.display = 'none';
-
-        countryTxt.textContent = data.city.name;
-        currentDateTxt.textContent = new Date(data.list[0].dt * 1000).toLocaleDateString('en-GB',
-            { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'UTC' }); // Ensure UTC matches API
-        weatherSummaryImg.src = `https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}@2x.png`;
-        weatherSummaryImg.alt = data.list[0].weather[0].description;
-        tempTxt.textContent = `${Math.round(data.list[0].temp.day)}° / ${Math.round(data.list[0].temp.min)}° C`;
-        conditionTxt.textContent = data.list[0].weather[0].main;
-        humidityValueTxt.textContent = `${data.list[0].humidity}%`;
-        windValueTxt.textContent = `${data.list[0].speed} m/s`;
-        sunriseValueTxt.textContent = new Date(data.list[0].sunrise * 1000).toLocaleTimeString('en-GB',
-            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' });
-        sunsetValueTxt.textContent = new Date(data.list[0].sunset * 1000).toLocaleTimeString('en-GB',
-            { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' });
-        pressureValueTxt.textContent = data.list[0].pressure;
-
-        // Update forecast items
-        const forecastContainer = document.querySelector('.forecast-items-container');
-        forecastContainer.innerHTML = ''; // Clear previous forecast
-
-        // data.list[0] is today, so forecast starts from data.list[1] for the next days
-        // The original HTML had 9 forecast items. The API returns 10 days (today + 9 forecast days).
-        for (let i = 1; i < data.list.length && i <= 9; i++) { // Loop for up to 9 forecast days
-            const forecast = data.list[i];
-            const forecastItemDiv = document.createElement('div');
-            forecastItemDiv.classList.add('forecast-item');
-
-            const date = new Date(forecast.dt * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'UTC' });
-            const iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
-            const condition = forecast.weather[0].main;
-            const temp = `${Math.round(forecast.temp.day)}° / ${Math.round(forecast.temp.min)}°C`;
-
-            forecastItemDiv.innerHTML = `
-                <h3 class="regular-txt">${date}</h3>
-                <img src="${iconUrl}" alt="${condition}" class="forecast-item-img">
-                <h3 class="regular-txt">${condition}</h3>
-                <h5>${temp}</h5>
-            `;
-            forecastContainer.appendChild(forecastItemDiv);
-        }
-    }
+        spinner.style.display = 'none';
+    };
 
     // Weather search function
     async function searchWeather(cityNameInput) {
@@ -222,7 +248,37 @@ document.addEventListener('DOMContentLoaded', () => {
             autoCompleteBox.style.display = 'none';
         }
     });
+// Modify searchWeather function to handle the new combined response structure
+    const searchWeather = async (cityName) => {
+        spinner.style.display = 'block';
+        weatherInfoSection.style.display = 'none';
+        searchCityMessage.style.display = 'none';
+        notFoundMessage.style.display = 'none';
+        autoCompleteBox.style.display = 'none'; // Hide autocomplete box immediately
 
+        try {
+            const response = await fetch(`/api/weather/?city=${encodeURIComponent(cityName)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                notFoundMessage.style.display = '';
+                searchCityMessage.style.display = 'none';
+                weatherInfoSection.style.display = 'none';
+                spinner.style.display = 'none';
+                console.error("API Error:", data.error);
+                return;
+            }
+
+            updateWeatherUI(data); // Pass the combined data to update UI
+
+        } catch (error) {
+            console.error('Network or other error:', error);
+            notFoundMessage.style.display = ''; // Show not found message on network error
+            searchCityMessage.style.display = 'none';
+            weatherInfoSection.style.display = 'none';
+            spinner.style.display = 'none';
+        }
+    };
     // Initial state: show search city message
     weatherInfoSection.style.display = 'none';
     notFoundMessage.style.display = 'none';

@@ -158,62 +158,78 @@ document.addEventListener('DOMContentLoaded', () => {
     autoCompleteBox.style.display = 'none';
     document.querySelector('.input-container').appendChild(autoCompleteBox);
 
+    document.addEventListener('DOMContentLoaded', () => {
+    // ... (existing variable declarations)
+    let autocompleteTimer; // This line should already be there from Step 2
+
+    // City input event listener for autocomplete
     cityInput.addEventListener('input', async () => {
         const query = cityInput.value.trim();
+
+        // 1. Always clear previous suggestions and hide box immediately on new input
         autoCompleteBox.innerHTML = '';
+        autoCompleteBox.style.display = 'none';
 
-        if (query.length < 2) { // Min characters to trigger autocomplete
-            autoCompleteBox.style.display = 'none';
-            return;
+        // 2. Clear any existing timer to reset the debounce countdown
+        clearTimeout(autocompleteTimer);
+
+        // 3. Optional: Only start searching if query length is sufficient (e.g., 2 characters)
+        // This prevents searching for single letters.
+        if (query.length < 2) {
+            return; // Exit if query is too short
         }
 
-        // Show spinner for autocomplete (optional, can reuse main spinner or create a smaller one)
-        // For simplicity, we'll skip a dedicated autocomplete spinner here.
+        // 4. Set a new timer
+        // The function inside setTimeout will execute only after 300ms
+        // if no new 'input' event occurs during that time.
+        autocompleteTimer = setTimeout(async () => {
+            // --- Your EXISTING Autocomplete Fetch Logic goes here ---
+            // This is the block that makes the actual fetch call to /api/cities/
 
-        try {
-            // Adjust URL based on your Django project's URL configuration
-            // const response = await fetch(`/weather/api/cities/?query=${encodeURIComponent(query)}`);
-            const response = await fetch(`/api/cities/?query=${encodeURIComponent(query)}`); // If app at root
+            try {
+                const response = await fetch(`/api/cities/?query=${encodeURIComponent(query)}`);
+                if (response.ok) {
+                    const cities = await response.json();
+                    if (cities.error) {
+                        console.error("Autocomplete API Error:", cities.error);
+                        return; // Stop if there's an API error
+                    }
 
-            if (response.ok) {
-                const cities = await response.json();
-                if (cities.error) {
-                    console.error("Autocomplete API Error:", cities.error);
-                    autoCompleteBox.style.display = 'none';
-                    return;
+                    cities.forEach(city => {
+                        const li = document.createElement('li');
+                        li.textContent = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
+                        li.style.padding = '10px';
+                        li.style.cursor = 'pointer';
+                        li.style.color = 'white'; // Ensure text color is white for readability
+
+                        li.addEventListener('mouseenter', () => {
+                            li.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                        });
+                        li.addEventListener('mouseleave', () => {
+                            li.style.backgroundColor = 'transparent';
+                        });
+
+                        li.addEventListener('click', () => {
+                            cityInput.value = city.name; // Use the main city name for the weather search
+                            autoCompleteBox.style.display = 'none';
+                            searchWeather(city.name); // Search immediately
+                        });
+                        autoCompleteBox.appendChild(li);
+                    });
+
+                    // Only show the autocomplete box if there are suggestions
+                    autoCompleteBox.style.display = cities.length > 0 ? 'block' : 'none';
+                } else {
+                    console.error("Autocomplete Fetch Error:", response.statusText);
+                    autoCompleteBox.style.display = 'none'; // Hide on fetch error
                 }
-
-                cities.forEach(city => {
-                    const li = document.createElement('li');
-                    li.textContent = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
-                    li.style.padding = '10px';
-                    li.style.cursor = 'pointer';
-                    li.style.color = 'white'; // Ensure text is visible on dark background
-
-                    li.addEventListener('mouseenter', () => {
-                        li.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                    });
-                    li.addEventListener('mouseleave', () => {
-                        li.style.backgroundColor = 'transparent';
-                    });
-
-                    li.addEventListener('click', () => {
-                        cityInput.value = city.name; // Use the main city name for the weather search
-                        autoCompleteBox.style.display = 'none';
-                        searchWeather(city.name); // Search immediately
-                    });
-                    autoCompleteBox.appendChild(li);
-                });
-
-                autoCompleteBox.style.display = cities.length > 0 ? 'block' : 'none';
-            } else {
-                console.error("Autocomplete Fetch Error:", response.statusText);
-                autoCompleteBox.style.display = 'none';
+            } catch (error) {
+                console.error('Autocomplete Network or other error:', error);
+                autoCompleteBox.style.display = 'none'; // Hide on network error
             }
-        } catch (error) {
-            console.error('Autocomplete Network or other error:', error);
-            autoCompleteBox.style.display = 'none';
-        }
+            // --- END of Your EXISTING Autocomplete Fetch Logic ---
+
+        }, 300); // 300 milliseconds debounce delay. You can adjust this (e.g., 500ms).
     });
 
     // Hide autocomplete when clicking outside
